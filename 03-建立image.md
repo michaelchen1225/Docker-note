@@ -156,3 +156,11 @@ docker image build -t web-ping:v3 .
 ```
 
 可以發現建置 image 需要的步驟減少了，因為 ENV 合併了。除此之外，後續修改 app.js 也不會影響到前面的 Layer。
+
+## 補充：將當前容器的狀態保存成新的 image
+
+假設容器有個檔案，我們在容器跑起來時修改了檔案內容，退出區後可以用以下方是將容器的狀態保存成新的 image：
+
+```bash
+docker container commit web-ping web-ping:v4
+```
