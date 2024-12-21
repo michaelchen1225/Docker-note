@@ -27,13 +27,13 @@ CMD cat /build.txt
 
 * 多階段 Dockerfile 以多個 FROM 組成
   * 用 As 命名每個階段
-  * 多個階段，最終產生的只有最後一個階段的 image
+  * 多個階段，**最終產生的只有最後一個階段的 image**
   * 如果任何階段有錯誤，整個 Dockerfile 會失敗
 
 * COPY --from 可以從先前的階段複製檔案
 
 * RUN 是在製作 image 時執行的指令，結果會留在 image 中
-  * RUN 所執行的指令必須由 FROM 映像檔中提供
+  * RUN 所執行的指令必須由 FROM 映像檔中提供 (比較： CMD 是容器**啟動時**執行的指令)
 
 進入 ch04/exercises/multi-stage 目錄，執行以下指令：
 
@@ -112,3 +112,5 @@ docker run --name iotd -d -p 800:80 --network nat image-of-the-day
 總之，用多階段 Dockerfile 可以優化 image 的大小：
 
 > 原理：不僅可以將建置工具包裝在 Dockerfile 中，讓團隊可以共享，且若前面執行的成功，最終產出的就是最後一個階段包含最終測試程式碼的 image。
+
+### 比較：

@@ -1,5 +1,23 @@
 # 03 建立 image
 
+## 目錄
+
+* [Image layer](#image-layer)
+
+* [作者的 Image：ping 特定的網站](#作者的-imageping-特定的網站)
+
+* [環境變數](#環境變數)
+
+* [撰寫 Dockerfile](#撰寫-Dockerfile)
+  * [CMD vs ENTRYPOINT](#CMD-vs-ENTRYPOINT)
+  * [ENTRYPOINT 的用途](#ENTRYPOINT-的用途)
+
+* [了解 image 及 image layer](#了解-image-及-image-layer)
+
+* [用 image layer cache 優化 Dockerfile](#用-image-layer-cache-優化-Dockerfile)
+
+* [補充：將當前容器的狀態保存成新的 image](#補充將當前容器的狀態保存成新的-image)
+
 ## Image layer
 
 一個 image 由多個小檔案分層組成，Docer 將這些小檔案組成一個容器的檔案系統。
@@ -87,6 +105,97 @@ web-ping     latest    62cd6dd6d411   About a minute ago   75.3MB
 ```bash
 docker run -e TARGET=docker.com -e INTERVAL=5000 web-ping
 ```
+
+### CMD vs ENTRYPOINT
+
+* CMD：設定容器啟動後要執行的指令，***可以被 docker run 後面的 argument 覆蓋**。例如原本的 CMD 是「echo hello」，可以執行 docker run my-echo ls 後，CMD 就會被覆蓋成 ls。
+
+* ENTRYPOINT：設定容器啟動後要執行的指令，**不會被 docker run 後面的 argument 覆蓋**。例如原本的 ENTRYPOINT 是「echo hello」，可以執行 docker run -it my-echo ls 後，容器仍然執行 echo hello。
+
+> 可以理解為 ENTRYPOINT 等於 Linux 的執行檔，CMD 等於執行檔的參數。
+
+如果真的想替換 ENTRYPOINT，可以在 docker run 後面加上 --entrypoint 參數：
+
+```bash
+docker run --entrypoint ls my-echo
+```
+
+### ENTRYPOINT 的用途
+
+1. 替換經常變動的參數
+
+例如非常確定這個容器用來做 echo，可以使用 ENTRYPOINT 設定 echo，而 CMD 設定要 echo 的內容：
+
+```Dockerfile
+FROM alpine
+ENTRYPOINT ["echo"]
+CMD ["hello"]
+```
+
+這樣預設會 echo hello，但是可以透過 docker run my-echo hi 來 echo hi。
+
+### shell form vs exec form
+
+> CMD & ENTRYPOINT 有兩種寫法：**shell form** 和 **exec form**
+
+**shell form**
+
+格式：
+
+```Dockerfile
+ENTRYPOINT command param1 param2
+```
+
+優點：預設以 shell 執行，因此可以取得環境變數。
+缺點：無法與 CMD 結合，因為 shell form 會被視為一個指令。例如：
+
+```Dockerfile
+FROM alpine
+ENV NAME=Michael
+ENTRYPOINT echo $NAME
+CMD ["hello"]
+```
+> 只會輸出 Micheal，不會有 hello。
+
+**exec form**
+
+格式：
+
+```Dockerfile
+ENTRYPOINT ["command", "param1", "param2"]
+```
+
+優點：可以與 CMD 結合：
+
+```Dockerfile
+FROM alpine
+ENTRYPOINT ["echo", "Michael"]
+CMD ["hello"]
+```
+
+> 輸出 Michael hello
+
+缺點：無法取得環境變數。
+
+```Dockerfile
+FROM alpine
+ENV NAME=Michael
+ENTRYPOINT ["echo", "$NAME"]
+CMD ["hello"]
+```
+
+> 輸出 $NAME hello
+
+解決方式：在 ENTRYPOINT 中指定 shell：
+
+```Dockerfile
+FROM alpine
+ENV NAME=Michael
+ENTRYPOINT ["/bin/sh", "-c", "echo $NAME"]
+CMD ["hello"]
+```
+> 但 CMD 就會被忽略
+
 
 ## 了解 image 及 image layer
 
