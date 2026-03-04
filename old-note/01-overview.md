@@ -20,7 +20,7 @@
 
 1. **IaaS 基礎設施即服務（Infrastructure as a Service）**：需要幫每個應用元件都開虛擬機，有隔離性高的優點，轉移較迅速，但 VM 成本高。
 
-2. **PaaS 平台即服務（Platform as a Service）**：將應用程式部署到平台上，平台會提供每個元件需要的服務，成本較低，但部署時間成本較高。
+2. **PaaS 平台即服務（Platform as a Service）**：將應用程式部署到平台上，平台會提供每個應用程式需要的服務，成本較低，但部署時間成本較高。
 
 直接用 Docker 封裝應用程式的元件，幾可以達到隔離的效果，也比 PaaS 部署更快、更輕量。
   * 部署環境：Azure Kubernetes Service、Amazon Elastic Container Service
