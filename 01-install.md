@@ -61,10 +61,56 @@ sudo systemctl enable docker
 sudo docker run hello-world
 ```
 
-### CentOS
+* (Optional)設定非 root user 可使用 Docker：
 
 ```bash
+sudo groupadd docker
+sudo usermod -aG docker $USER
+sudo chown "$USER":"$USER" /home/"$USER"/.docker -R
+sudo chmod g+rwx "$HOME/.docker" -R
+```
 
+
+
+### CentOS
+
+* 移除衝突套件
+
+```bash
+sudo dnf remove docker \
+                  docker-client \
+                  docker-client-latest \
+                  docker-common \
+                  docker-latest \
+                  docker-latest-logrotate \
+                  docker-logrotate \
+                  docker-engine
+```
+
+* 設定 Docker repository
+
+```bash
+sudo dnf -y install dnf-plugins-core
+sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+```
+
+* 安裝 latest Docker：
+
+```bash
+sudo dnf install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+
+* 設定啟用 Docker：
+
+```bash
+sudo systemctl enable --now docker
+```
+
+* 測試是否安裝成功：
+
+```bash
+sudo docker run hello-world
+```
 
 ## Uninstall Docker 
 
@@ -73,6 +119,14 @@ sudo docker run hello-world
 ```bash
 sudo apt purge docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-ce-rootless-extras
 
+sudo rm -rf /var/lib/docker
+sudo rm -rf /var/lib/containerd
+```
+
+### CentOS
+
+```bash
+sudo dnf remove docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-ce-rootless-extras
 sudo rm -rf /var/lib/docker
 sudo rm -rf /var/lib/containerd
 ```
